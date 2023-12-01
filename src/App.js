@@ -1,24 +1,29 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Route, BrowserRouter as Router, Routes, Navigate } from "react-router-dom";
+import Dashboard from "./components/admin/pages/Dashboard";
+import Profile from "./components/admin/pages/Profile";
+import Home from "./components/frontend/pages/Home";
+import Login from "./components/frontend/pages/auth/Login";
+import Register from "./components/frontend/pages/auth/Register";
 
+import axios from 'axios';
+
+axios.defaults.baseURL = "http://localhost:8000";
+axios.defaults.headers.post['Accept'] = 'application/josn';
+axios.defaults.withCredentials = true;
+axios.defaults.withXSRFToken = true;
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <Routes>
+        <Route exact path="/" element={<Home/>} />
+        <Route exact path="/login" element={<Login/>} />
+        <Route exact path="/register" element={<Register/>} />
+        <Route exact path="/admin/dashboard" element={<Dashboard/>} />
+        <Route exact path="/admin/profile" element={<Profile/>} />
+        <Route path="/admin" element={<Navigate to="/admin/dashboard" />} />
+      </Routes>
+    </Router>
   );
 }
 
