@@ -15,11 +15,13 @@ export default function Register(){
     });
     const handleInput = (e) => {
         e.preventDefault();
+        e.persist();
         setRegisterInput({...registerInput, [e.target.name]: e.target.value});
     }
 
     const registerSubmit = (e) => {
         e.preventDefault();
+        e.persist();
         const data = {
             first_name: registerInput.first_name,
             last_name: registerInput.last_name,

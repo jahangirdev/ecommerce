@@ -1,11 +1,16 @@
 import React, {useState} from "react";
 import AuthLayout from "../../../../layouts/frontend/auth/AuthLayout";
 import {Link} from 'react-router-dom';
+import axios from 'axios';
+import swal from 'sweetalert';
+import { useNavigate } from "react-router-dom";
 export default function Login(){
+    const navigate = useNavigate();
     const [loginInput, setLoginInput] = useState({
         email: '',
         password: '',
-        remember: false
+        remember: false,
+        error_list: []
     });
     const handleInput = (e) => {
         e.preventDefault();
@@ -21,6 +26,22 @@ export default function Login(){
             password: loginInput.password,
             remember: loginInput.remember
         }
+        axios.get('sanctum/csrf-cookie').then(function(){
+            axios.post('/api/login', data).then( res => {
+                if(res.data.status === 200){
+                    localStorage.setItem('auth_token', res.data.token);
+                    localStorage.setItem('auth_username', res.data.username);
+                    swal('Success', res.data.message, 'success');
+                    navigate('/');
+                }
+                else if(res.data.status === 401){
+                    swal('Login Failed', res.data.message, 'error');
+                }
+                else{
+                    setLoginInput({...loginInput, error_list: res.data.validation_errors });
+                }
+            });
+        });
     }
     return(
         <AuthLayout>
@@ -31,10 +52,12 @@ export default function Login(){
                         <div className="form-floating mb-3">
                             <input onChange={handleInput} className="form-control" name="email" value={loginInput.email} id="inputEmail" type="email" placeholder="name@example.com" />
                             <label htmlFor="inputEmail">Email address</label>
+                            <span className="text-danger">{loginInput.error_list.email}</span>
                         </div>
                         <div className="form-floating mb-3">
                             <input onChange={handleInput} className="form-control" name="password" value={loginInput.password} id="inputPassword" type="password" placeholder="Password" />
                             <label htmlFor="inputPassword">Password</label>
+                            <span className="text-danger">{loginInput.error_list.password}</span>
                         </div>
                         <div className="form-check mb-3">
                             <input onChange={handleCheckBox} className="form-check-input" name="remember" checked={loginInput.remember} id="inputRememberPassword" type="checkbox"/>
@@ -42,7 +65,7 @@ export default function Login(){
                         </div>
                         <div className="d-flex align-items-center justify-content-between mt-4 mb-0">
                             <Link className="small" to="/forgot-password">Forgot Password?</Link>
-                            <Link className="btn btn-primary" to="">Login</Link>
+                            <button type="submit" className="btn btn-primary" to="">Login</button>
                         </div>
                     </form>
                 </div>
